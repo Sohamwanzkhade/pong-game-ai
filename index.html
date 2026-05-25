@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game - AI Opponent</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 PONG GAME</h1>
+            <p class="subtitle">Control Left Paddle | AI Controls Right Paddle</p>
+        </div>
+
+        <div class="scoreboard">
+            <div class="player-score">
+                <h2>YOU</h2>
+                <p class="score" id="playerScore">0</p>
+            </div>
+            <div class="divider">|</div>
+            <div class="ai-score">
+                <h2>AI</h2>
+                <p class="score" id="aiScore">0</p>
+            </div>
+        </div>
+
+        <canvas id="pongCanvas" width="1000" height="600"></canvas>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>🖱️ Mouse Controls</h3>
+                <p>Move your mouse vertically to control the left paddle</p>
+            </div>
+            <div class="control-group">
+                <h3>⌨️ Keyboard Controls</h3>
+                <p>Press <strong>UP/DOWN</strong> arrow keys to move the left paddle</p>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="info-box">
+                <h4>Game Stats</h4>
+                <p>Difficulty: <span id="difficulty">NORMAL</span></p>
+                <p>Ball Speed: <span id="ballSpeed">5</span> px/frame</p>
+                <p>Paddle Speed: <span id="paddleSpeed">6</span> px/frame</p>
+            </div>
+            <div class="info-box">
+                <h4>Status</h4>
+                <p id="gameStatus">Game Running...</p>
+                <button id="resetBtn" class="btn">Reset Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
