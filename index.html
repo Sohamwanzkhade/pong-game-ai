@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Game - AI Opponent</title>
+    <title>Pong Game - AI & Multiplayer</title>
     <style>
         * {
             margin: 0;
@@ -26,13 +26,15 @@
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
@@ -44,7 +46,93 @@
 
         .subtitle {
             color: #666;
-            font-size: 1.1em;
+            font-size: 1em;
+        }
+
+        .game-mode-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 12px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .settings-panel {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-group label {
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .setting-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .setting-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+        }
+
+        .setting-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+        }
+
+        .value-display {
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 0.9em;
         }
 
         .scoreboard {
@@ -53,8 +141,8 @@
             align-items: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 25px;
+            margin-bottom: 25px;
             color: white;
         }
 
@@ -64,86 +152,85 @@
         }
 
         .player-score h2, .ai-score h2 {
-            font-size: 1.3em;
-            margin-bottom: 10px;
+            font-size: 1.2em;
+            margin-bottom: 8px;
             opacity: 0.9;
         }
 
         .score {
-            font-size: 4em;
+            font-size: 3.5em;
             font-weight: bold;
-            margin: 0;
         }
 
         .divider {
             font-size: 3em;
             color: rgba(255, 255, 255, 0.5);
-            margin: 0 40px;
+            margin: 0 30px;
         }
 
         #pongCanvas {
             display: block;
-            margin: 0 auto 30px;
+            margin: 0 auto 25px;
             background: #1a1a2e;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             border: 3px solid #667eea;
+            cursor: none;
         }
 
         .controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .control-group {
             background: #f5f5f5;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border-left: 4px solid #667eea;
+            font-size: 0.9em;
         }
 
         .control-group h3 {
             color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-size: 1em;
         }
 
         .control-group p {
             color: #666;
-            line-height: 1.6;
-        }
-
-        .control-group strong {
-            color: #764ba2;
-            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 5px;
         }
 
         .game-info {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .info-box {
             background: #f9f9f9;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             border: 2px solid #eee;
         }
 
         .info-box h4 {
             color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-size: 0.95em;
         }
 
         .info-box p {
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
+            font-size: 0.9em;
         }
 
         .info-box span {
@@ -151,22 +238,23 @@
             font-weight: bold;
         }
 
-        #gameStatus {
-            font-weight: bold;
-            color: #667eea;
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 10px 25px;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 0.95em;
             cursor: pointer;
-            margin-top: 15px;
             transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
+            font-weight: 600;
         }
 
         .btn:hover {
@@ -174,8 +262,34 @@
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .btn:active {
-            transform: translateY(0);
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .multiplayer-controls {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .multiplayer-controls h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .multiplayer-controls p {
+            color: #856404;
+            margin-bottom: 5px;
+            font-size: 0.9em;
         }
 
         @media (max-width: 768px) {
@@ -187,21 +301,25 @@
                 font-size: 1.8em;
             }
 
-            #pongCanvas {
-                max-width: 100%;
-                height: auto;
+            .settings-panel {
+                grid-template-columns: 1fr;
             }
 
             .controls {
                 grid-template-columns: 1fr;
             }
 
-            .game-info {
-                grid-template-columns: 1fr;
+            #pongCanvas {
+                max-width: 100%;
+                height: auto;
             }
 
-            .divider {
-                margin: 0 20px;
+            .game-mode-selector {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
             }
         }
     </style>
@@ -209,18 +327,62 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 PONG GAME</h1>
-            <p class="subtitle">Control Left Paddle | AI Controls Right Paddle</p>
+            <h1>🎮 PONG GAME ENHANCED</h1>
+            <p class="subtitle">AI vs Player | Two-Player Offline Multiplayer</p>
+        </div>
+
+        <div class="game-mode-selector">
+            <button class="mode-btn active" data-mode="ai">🤖 Play vs AI</button>
+            <button class="mode-btn" data-mode="multiplayer">👥 Two-Player</button>
+        </div>
+
+        <div class="settings-panel">
+            <div class="setting-group">
+                <label for="ballSpeed">🎯 Ball Speed Multiplier</label>
+                <input type="range" id="ballSpeed" min="0.5" max="2" step="0.1" value="1">
+                <span class="value-display" id="ballSpeedValue">1.0x</span>
+            </div>
+
+            <div class="setting-group">
+                <label for="paddleSpeed">🏓 Paddle Speed Multiplier</label>
+                <input type="range" id="paddleSpeed" min="0.5" max="2" step="0.1" value="1">
+                <span class="value-display" id="paddleSpeedValue">1.0x</span>
+            </div>
+
+            <div class="setting-group" id="aiDifficultyGroup" style="display: none;">
+                <label for="aiDifficulty">🤖 AI Difficulty</label>
+                <select id="aiDifficulty" style="padding: 8px; border-radius: 5px; border: 2px solid #667eea;">
+                    <option value="easy">Easy</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Hard</option>
+                    <option value="impossible">Impossible</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label for="canvasSize">📏 Game Canvas Size</label>
+                <select id="canvasSize" style="padding: 8px; border-radius: 5px; border: 2px solid #667eea;">
+                    <option value="normal" selected>Normal (1000x600)</option>
+                    <option value="large">Large (1200x700)</option>
+                    <option value="small">Small (800x500)</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="multiplayerInfo" class="multiplayer-controls" style="display: none;">
+            <h3>👥 Two-Player Controls</h3>
+            <p><strong>Player 1 (Left - Green):</strong> ⬆️ UP / ⬇️ DOWN arrow keys</p>
+            <p><strong>Player 2 (Right - Red):</strong> W/S keys</p>
         </div>
 
         <div class="scoreboard">
             <div class="player-score">
-                <h2>YOU</h2>
+                <h2 id="player1Label">YOU</h2>
                 <p class="score" id="playerScore">0</p>
             </div>
             <div class="divider">|</div>
             <div class="ai-score">
-                <h2>AI</h2>
+                <h2 id="player2Label">AI</h2>
                 <p class="score" id="aiScore">0</p>
             </div>
         </div>
@@ -229,12 +391,12 @@
 
         <div class="controls">
             <div class="control-group">
-                <h3>🖱️ Mouse Controls</h3>
-                <p>Move your mouse vertically to control the left paddle</p>
+                <h3 id="control1Title">🖱️ Mouse Controls</h3>
+                <p id="control1Text">Move your mouse vertically to control the left paddle</p>
             </div>
             <div class="control-group">
-                <h3>⌨️ Keyboard Controls</h3>
-                <p>Press <strong>UP/DOWN</strong> arrow keys to move the left paddle</p>
+                <h3 id="control2Title">⌨️ Keyboard Controls</h3>
+                <p id="control2Text">Press UP/DOWN arrow keys to move the left paddle</p>
             </div>
         </div>
 
@@ -242,14 +404,21 @@
             <div class="info-box">
                 <h4>Game Stats</h4>
                 <p>Difficulty: <span id="difficulty">NORMAL</span></p>
-                <p>Ball Speed: <span id="ballSpeed">5</span> px/frame</p>
-                <p>Paddle Speed: <span id="paddleSpeed">6</span> px/frame</p>
+                <p>Ball Speed: <span id="ballSpeedStat">5.0</span> px/frame</p>
+                <p>Mode: <span id="gameMode">AI</span></p>
             </div>
             <div class="info-box">
-                <h4>Status</h4>
-                <p id="gameStatus">Game Running...</p>
-                <button id="resetBtn" class="btn">Reset Game</button>
+                <h4>Performance</h4>
+                <p>Rally: <span id="rallyCount">0</span></p>
+                <p>FPS: <span id="fps">60</span></p>
+                <p>Total Points: <span id="totalPoints">0</span></p>
             </div>
+        </div>
+
+        <div class="button-group">
+            <button id="resetBtn" class="btn">🔄 Reset Game</button>
+            <button id="pauseBtn" class="btn btn-secondary">⏸️ Pause</button>
+            <button id="exportBtn" class="btn btn-secondary">📥 Export Stats</button>
         </div>
     </div>
 
@@ -257,6 +426,16 @@
         // Game Variables
         const canvas = document.getElementById('pongCanvas');
         const ctx = canvas.getContext('2d');
+
+        let gameMode = 'ai'; // 'ai' or 'multiplayer'
+        let ballSpeedMultiplier = 1;
+        let paddleSpeedMultiplier = 1;
+        let aiDifficultyLevel = 'normal';
+        let gamePaused = false;
+        let frameCount = 0;
+        let lastFrameTime = Date.now();
+        let fps = 60;
+        let rallyCount = 0;
 
         // Game Objects
         const paddle = {
@@ -288,7 +467,8 @@
             dy: 5,
             speed: 5,
             maxSpeed: 8,
-            color: '#00d4ff'
+            color: '#00d4ff',
+            baseSpeed: 5
         };
 
         let playerScore = 0;
@@ -300,7 +480,6 @@
         const keys = {};
         window.addEventListener('keydown', (e) => {
             keys[e.key] = true;
-            e.preventDefault();
         });
 
         window.addEventListener('keyup', (e) => {
@@ -309,10 +488,96 @@
 
         // Mouse Controls
         canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseY = e.clientY - rect.top;
-            paddle.y = Math.max(0, Math.min(mouseY - paddle.height / 2, canvas.height - paddle.height));
+            if (gameMode === 'ai') {
+                const rect = canvas.getBoundingClientRect();
+                const mouseY = e.clientY - rect.top;
+                paddle.y = Math.max(0, Math.min(mouseY - paddle.height / 2, canvas.height - paddle.height));
+            }
         });
+
+        // UI Event Listeners
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                gameMode = btn.dataset.mode;
+                document.getElementById('aiDifficultyGroup').style.display = gameMode === 'ai' ? 'flex' : 'none';
+                document.getElementById('multiplayerInfo').style.display = gameMode === 'multiplayer' ? 'block' : 'none';
+                updateControlsDisplay();
+                resetGame();
+            });
+        });
+
+        document.getElementById('ballSpeed').addEventListener('input', (e) => {
+            ballSpeedMultiplier = parseFloat(e.target.value);
+            document.getElementById('ballSpeedValue').textContent = ballSpeedMultiplier.toFixed(1) + 'x';
+            ball.baseSpeed = 5 * ballSpeedMultiplier;
+            ball.maxSpeed = 8 * ballSpeedMultiplier;
+        });
+
+        document.getElementById('paddleSpeed').addEventListener('input', (e) => {
+            paddleSpeedMultiplier = parseFloat(e.target.value);
+            document.getElementById('paddleSpeedValue').textContent = paddleSpeedMultiplier.toFixed(1) + 'x';
+            paddle.maxSpeed = 6 * paddleSpeedMultiplier;
+            aiPaddle.maxSpeed = 5 * paddleSpeedMultiplier;
+        });
+
+        document.getElementById('aiDifficulty').addEventListener('change', (e) => {
+            aiDifficultyLevel = e.target.value;
+            updateAIDifficulty();
+        });
+
+        document.getElementById('canvasSize').addEventListener('change', (e) => {
+            const sizes = {
+                small: { w: 800, h: 500 },
+                normal: { w: 1000, h: 600 },
+                large: { w: 1200, h: 700 }
+            };
+            const size = sizes[e.target.value];
+            canvas.width = size.w;
+            canvas.height = size.h;
+            resetBall();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            gamePaused = !gamePaused;
+            document.getElementById('pauseBtn').textContent = gamePaused ? '▶️ Resume' : '⏸️ Pause';
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', exportStats);
+
+        function updateControlsDisplay() {
+            if (gameMode === 'ai') {
+                document.getElementById('control1Title').textContent = '🖱️ Mouse Controls';
+                document.getElementById('control1Text').textContent = 'Move your mouse vertically to control the left paddle';
+                document.getElementById('control2Title').textContent = '⌨️ Keyboard Controls';
+                document.getElementById('control2Text').textContent = 'Press UP/DOWN arrow keys to move the left paddle';
+                document.getElementById('player1Label').textContent = 'YOU';
+                document.getElementById('player2Label').textContent = 'AI';
+            } else {
+                document.getElementById('control1Title').textContent = '⌨️ Player 1 Controls';
+                document.getElementById('control1Text').textContent = 'UP/DOWN arrow keys to move paddle';
+                document.getElementById('control2Title').textContent = '⌨️ Player 2 Controls';
+                document.getElementById('control2Text').textContent = 'W/S keys to move paddle';
+                document.getElementById('player1Label').textContent = 'PLAYER 1';
+                document.getElementById('player2Label').textContent = 'PLAYER 2';
+            }
+        }
+
+        function updateAIDifficulty() {
+            const difficulties = {
+                easy: { maxSpeed: 3, missRate: 0.4 },
+                normal: { maxSpeed: 5, missRate: 0 },
+                hard: { maxSpeed: 6, missRate: 0 },
+                impossible: { maxSpeed: 7, missRate: 0 }
+            };
+            const diff = difficulties[aiDifficultyLevel];
+            aiPaddle.maxSpeed = diff.maxSpeed * paddleSpeedMultiplier;
+            aiPaddle.missRate = diff.missRate;
+            document.getElementById('difficulty').textContent = aiDifficultyLevel.toUpperCase();
+        }
 
         // Update Player Paddle
         function updatePlayerPaddle() {
@@ -325,43 +590,39 @@
             }
 
             paddle.y += paddle.dy;
-
-            // Boundary collision
             if (paddle.y < 0) paddle.y = 0;
             if (paddle.y + paddle.height > canvas.height) paddle.y = canvas.height - paddle.height;
         }
 
-        // Update AI Paddle with Dynamic Difficulty
+        // Update AI/Player 2 Paddle
         function updateAIPaddle() {
-            const aiCenter = aiPaddle.y + aiPaddle.height / 2;
-            const ballCenter = ball.y;
-            let speed = aiPaddle.maxSpeed;
-
-            // AI Difficulty Levels
-            if (aiPaddle.difficulty === 'EASY') {
-                speed = 3;
-                // AI misses sometimes (30% miss rate)
-                if (Math.random() < 0.3) {
-                    return;
+            if (gameMode === 'multiplayer') {
+                // Player 2 controls
+                if (keys['w'] || keys['W']) {
+                    aiPaddle.dy = -aiPaddle.maxSpeed;
+                } else if (keys['s'] || keys['S']) {
+                    aiPaddle.dy = aiPaddle.maxSpeed;
+                } else {
+                    aiPaddle.dy = 0;
                 }
-            } else if (aiPaddle.difficulty === 'HARD') {
-                speed = 6;
-            } else if (aiPaddle.difficulty === 'IMPOSSIBLE') {
-                speed = 7;
-            }
-
-            // AI tracks the ball
-            if (aiCenter < ballCenter - 35) {
-                aiPaddle.dy = speed;
-            } else if (aiCenter > ballCenter + 35) {
-                aiPaddle.dy = -speed;
             } else {
-                aiPaddle.dy = 0;
+                // AI controls
+                const aiCenter = aiPaddle.y + aiPaddle.height / 2;
+                const ballCenter = ball.y;
+                let speed = aiPaddle.maxSpeed;
+
+                if (aiDifficultyLevel === 'easy' && Math.random() < 0.3) return;
+
+                if (aiCenter < ballCenter - 35) {
+                    aiPaddle.dy = speed;
+                } else if (aiCenter > ballCenter + 35) {
+                    aiPaddle.dy = -speed;
+                } else {
+                    aiPaddle.dy = 0;
+                }
             }
 
             aiPaddle.y += aiPaddle.dy;
-
-            // Boundary collision
             if (aiPaddle.y < 0) aiPaddle.y = 0;
             if (aiPaddle.y + aiPaddle.height > canvas.height) aiPaddle.y = canvas.height - aiPaddle.height;
         }
@@ -371,17 +632,13 @@
             ball.x += ball.dx;
             ball.y += ball.dy;
 
-            // Top and bottom wall collision
             if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
                 ball.dy = -ball.dy;
                 ball.y = Math.max(ball.radius, Math.min(ball.y, canvas.height - ball.radius));
-                ballWallCollision = true;
-            } else {
-                ballWallCollision = false;
             }
         }
 
-        // Collision Detection - Paddles
+        // Collision Detection
         function checkPaddleCollision() {
             // Player Paddle Collision
             if (ball.x - ball.radius < paddle.x + paddle.width &&
@@ -390,13 +647,12 @@
                 ball.dx = -ball.dx;
                 ball.x = paddle.x + paddle.width + ball.radius;
 
-                // Add spin based on paddle velocity
                 const deltaY = ball.y - (paddle.y + paddle.height / 2);
                 ball.dy = deltaY * 0.1 + paddle.dy * 0.2;
 
-                // Increase ball speed gradually
                 ball.speed = Math.min(ball.speed + 0.1, ball.maxSpeed);
                 updateBallVelocity();
+                rallyCount++;
             }
 
             // AI Paddle Collision
@@ -406,17 +662,15 @@
                 ball.dx = -ball.dx;
                 ball.x = aiPaddle.x - ball.radius;
 
-                // Add spin based on paddle velocity
                 const deltaY = ball.y - (aiPaddle.y + aiPaddle.height / 2);
                 ball.dy = deltaY * 0.1 + aiPaddle.dy * 0.2;
 
-                // Increase ball speed gradually
                 ball.speed = Math.min(ball.speed + 0.1, ball.maxSpeed);
                 updateBallVelocity();
+                rallyCount++;
             }
         }
 
-        // Update Ball Velocity
         function updateBallVelocity() {
             const speed = Math.sqrt(ball.dx ** 2 + ball.dy ** 2);
             if (speed > ball.maxSpeed) {
@@ -430,10 +684,12 @@
             if (ball.x < 0) {
                 aiScore++;
                 resetBall();
+                rallyCount = 0;
                 updateUI();
             } else if (ball.x > canvas.width) {
                 playerScore++;
                 resetBall();
+                rallyCount = 0;
                 updateUI();
             }
         }
@@ -442,9 +698,9 @@
         function resetBall() {
             ball.x = canvas.width / 2;
             ball.y = canvas.height / 2;
-            ball.speed = 5;
-            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
-            ball.dy = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 3 + 2);
+            ball.speed = ball.baseSpeed;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ball.baseSpeed;
+            ball.dy = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 3 + 2) * ballSpeedMultiplier;
         }
 
         // Draw Functions
@@ -481,31 +737,23 @@
         function updateUI() {
             document.getElementById('playerScore').textContent = playerScore;
             document.getElementById('aiScore').textContent = aiScore;
-            document.getElementById('difficulty').textContent = aiPaddle.difficulty;
-            document.getElementById('ballSpeed').textContent = ball.speed.toFixed(1);
-        }
-
-        // Adjust Difficulty Based on Score Difference
-        function adjustDifficulty() {
-            const diff = playerScore - aiScore;
-
-            if (diff > 5) {
-                aiPaddle.difficulty = 'HARD';
-                aiPaddle.maxSpeed = 6;
-            } else if (diff > 2) {
-                aiPaddle.difficulty = 'NORMAL';
-                aiPaddle.maxSpeed = 5;
-            } else if (diff < -5) {
-                aiPaddle.difficulty = 'EASY';
-                aiPaddle.maxSpeed = 3;
-            } else if (diff < -2) {
-                aiPaddle.difficulty = 'NORMAL';
-                aiPaddle.maxSpeed = 5;
-            }
+            document.getElementById('ballSpeedStat').textContent = ball.speed.toFixed(1);
+            document.getElementById('gameMode').textContent = gameMode === 'ai' ? 'AI' : 'Two-Player';
+            document.getElementById('rallyCount').textContent = rallyCount;
+            document.getElementById('totalPoints').textContent = playerScore + aiScore;
         }
 
         // Main Game Loop
         function gameLoop() {
+            frameCount++;
+            const now = Date.now();
+            if (now - lastFrameTime >= 1000) {
+                fps = frameCount;
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+
             // Clear canvas
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -516,37 +764,54 @@
             drawPaddle(aiPaddle);
             drawBall();
 
-            if (gameRunning) {
-                // Update game objects
+            if (gameRunning && !gamePaused) {
                 updatePlayerPaddle();
                 updateAIPaddle();
                 updateBall();
                 checkPaddleCollision();
                 checkScore();
-                adjustDifficulty();
             }
 
             requestAnimationFrame(gameLoop);
         }
 
-        // Reset Game
-        document.getElementById('resetBtn').addEventListener('click', () => {
+        function resetGame() {
             playerScore = 0;
             aiScore = 0;
-            ball.speed = 5;
-            aiPaddle.difficulty = 'NORMAL';
-            aiPaddle.maxSpeed = 5;
+            rallyCount = 0;
+            ball.speed = ball.baseSpeed;
             resetBall();
             updateUI();
-        });
-
-        // Initialize Game
-        function init() {
-            updateUI();
-            gameLoop();
+            gamePaused = false;
+            document.getElementById('pauseBtn').textContent = '⏸️ Pause';
         }
 
-        init();
+        function exportStats() {
+            const stats = {
+                timestamp: new Date().toISOString(),
+                gameMode: gameMode,
+                playerScore: playerScore,
+                aiScore: aiScore,
+                totalRallies: rallyCount,
+                ballSpeedMultiplier: ballSpeedMultiplier,
+                paddleSpeedMultiplier: paddleSpeedMultiplier,
+                aiDifficulty: aiDifficultyLevel
+            };
+
+            const json = JSON.stringify(stats, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pong-stats-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        updateControlsDisplay();
+        updateUI();
+        gameLoop();
     </script>
 </body>
 </html>
