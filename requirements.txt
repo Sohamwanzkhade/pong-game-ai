@@ -1,0 +1,162 @@
+# Pong Game AI - Requirements
+
+## Core Dependencies
+sqlite3>=3.6  # Built-in, no installation needed
+json           # Built-in, no installation needed
+datetime       # Built-in, no installation needed
+
+## Optional Cloud Integration
+supabase>=2.0.0        # For cloud storage (OPTIONAL)
+python-dotenv>=0.19.0  # For environment variables (OPTIONAL)
+
+## Development
+pytest>=7.0.0          # For testing (OPTIONAL)
+pylint>=2.0.0          # For code quality (OPTIONAL)
+
+## Installation
+
+### Basic Installation (Recommended for Local Play)
+```bash
+pip install -r requirements.txt
+```
+
+### Full Installation (With Cloud Support)
+```bash
+pip install -r requirements.txt
+pip install supabase python-dotenv
+```
+
+## Setup Instructions
+
+### 1. Local Database Setup
+- No setup needed! SQLite database is automatically created on first run
+- Located at: `game_stats.db`
+
+### 2. Cloud Setup (Optional - Supabase)
+1. Create free account at: https://app.supabase.com
+2. Create new project
+3. Get your credentials:
+   - Supabase URL
+   - Supabase API Key
+4. Create `.env` file in project root:
+   ```
+   SUPABASE_URL=your_url_here
+   SUPABASE_KEY=your_key_here
+   ```
+5. Run: `pip install supabase python-dotenv`
+
+### 3. Create Supabase Tables
+In Supabase dashboard, create these tables:
+
+**game_sessions**
+- id (serial)
+- timestamp (text)
+- game_mode (text)
+- player_score (integer)
+- opponent_score (integer)
+- ai_difficulty (text)
+- ball_speed_multiplier (decimal)
+- paddle_speed_multiplier (decimal)
+- total_rallies (integer)
+- winner (text)
+- created_at (timestamp)
+
+**player_stats**
+- id (serial)
+- total_games_played (integer)
+- total_wins (integer)
+- total_losses (integer)
+- win_rate (decimal)
+- highest_score (integer)
+- updated_at (timestamp)
+
+## Usage
+
+### Run Game Analysis
+```bash
+python main.py
+```
+
+### Add Sample Data (for testing)
+```bash
+python main.py
+# Select option 7 to add sample data
+```
+
+### Use in Python Code
+```python
+from game_data import GameDataManager
+from analyze_game import GameAnalyzer
+from difficulty_engine import DynamicDifficultyEngine
+from cloud_manager import OOPGameManager, SupabaseCloudManager
+
+# Initialize managers
+local_db = GameDataManager()
+cloud = SupabaseCloudManager()
+analyzer = GameAnalyzer(local_db)
+difficulty = DynamicDifficultyEngine(local_db, analyzer)
+game_mgr = OOPGameManager(local_db, cloud, analyzer, difficulty)
+
+# Record a game
+game_data = {
+    'game_mode': 'ai',
+    'player_score': 5,
+    'opponent_score': 3,
+    'ai_difficulty': 'normal',
+    'total_rallies': 45,
+    'winner': 'player'
+}
+game_mgr.play_game(game_data)
+
+# Get recommendations
+recs = game_mgr.get_recommendations()
+print(recs)
+```
+
+## Features
+
+✅ **Local Data Storage** - SQLite database
+✅ **Game Analysis** - Performance metrics & trends
+✅ **AI Difficulty** - Dynamic adjustment based on skill
+✅ **Cloud Sync** - Optional Supabase integration
+✅ **OOP Architecture** - Clean, maintainable code
+✅ **Export Stats** - Save data as JSON
+✅ **Training Suggestions** - Personalized recommendations
+✅ **Leaderboards** - Compare with other players
+
+## File Structure
+
+```
+pong-game-ai/
+├── index.html                 # Game UI
+├── game_data.py              # Database operations
+├── analyze_game.py           # Data analysis
+├── difficulty_engine.py      # AI difficulty management
+├── cloud_manager.py          # Cloud integration & OOP
+├── main.py                   # Interactive menu
+├── requirements.txt          # Dependencies
+├── game_stats.db             # Local database (auto-created)
+└── .env                      # Cloud credentials (optional)
+```
+
+## Troubleshooting
+
+**Issue: SQLite not working**
+- Solution: Python comes with SQLite built-in, usually works automatically
+
+**Issue: Cloud sync not working**
+- Solution: Install supabase: `pip install supabase`
+- Create .env file with credentials
+
+**Issue: Database locked**
+- Solution: Close other instances of the program
+- Or delete game_stats.db to start fresh
+
+## Support & Contribution
+
+For issues or feature requests, visit:
+https://github.com/Sohamwanzkhade/pong-game-ai
+
+## License
+
+This project is open source and available for personal and educational use.
